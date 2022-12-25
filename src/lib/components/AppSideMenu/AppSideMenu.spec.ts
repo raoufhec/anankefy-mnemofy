@@ -12,7 +12,7 @@ describe('Side Menu', () => {
 
 		it('should display a button to create a new galaxy', async () => {
 			render(AppSideMenu);
-			const button = screen.getByText('Create a galaxy');
+			const button = screen.getByText('Create a Galaxy');
 			expect(button).toBeDefined();
 			await fireEvent.click(button);
 			// fail untill I code the create galaxy logic
