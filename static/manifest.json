@@ -1,0 +1,9 @@
+{
+	"short_name": "mnemofy",
+	"name": "Mnemofy",
+	"description": "",
+	"start_url": "/",
+	"icons": [],
+	"display": "standalone",
+	"scope": "/"
+}

@@ -1,0 +1,75 @@
+@use 'sass:color';
+
+@use '@material/theme/color-palette';
+
+// Svelte Colors! (Dark Theme)
+@use '@material/theme/index' as theme with (
+	$primary: #0bdbfb,
+	$secondary: #112240,
+	$surface: #112240,
+	$background: #091424,
+	$error: color-palette.$red-700,
+	$on-surface: #d7d8da,
+	$on-primary: #d7d8da,
+	$on-secondary: #d7d8da
+);
+
+@use '@material/elevation/mdc-elevation';
+
+html,
+body {
+	background-color: #091424;
+	color: theme.$on-surface;
+	margin: 0px;
+	height: 100vh;
+	font-family: 'Titillium Web', sans-serif !important;
+}
+
+a {
+	color: #3dc2ff;
+}
+a:visited {
+	color: color.scale(#3dc2ff, $lightness: -35%);
+}
+.mdc-top-app-bar {
+	background-color: theme.$surface;
+}
+
+.mdc-drawer.mdc-drawer--open:not(.mdc-drawer--closing) + .mdc-drawer-app-content.app-content {
+	margin-left: 370px;
+}
+.mdc-drawer {
+	width: 370px !important;
+}
+
+.icon-button .mdc-button .mdc-button__icon {
+	margin: 0px;
+}
+
+.primary-color {
+	color: theme.$primary !important;
+}
+.secondary-color {
+	color: #3dc2ff !important;
+}
+.dark-color {
+	color: var(--mne-color-dark);
+}
+.light-color {
+	color: var(--mne-color-light);
+}
+.shade-color {
+	color: var(--mne-color-shade);
+}
+
+:root {
+	--mne-color-warning: #ffc409;
+	--mne-color-error: #eb445a;
+	--mne-color-success: #2dd36f;
+
+	--mne-color-dark: #424242;
+	--mne-color-light: #f5f6f9;
+	--mne-color-shade: #9d9fa6;
+
+	--mne-color-primary: #0bdbfb;
+}

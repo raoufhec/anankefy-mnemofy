@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width" />
+		<!-- PWA Manifest -->
+		<link rel="manifest" crossorigin="use-credentials" href="manifest.json" />
+		<!-- Material Icons -->
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+		<!-- Titillium Web Font -->
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@200;400;600&display=swap"
+		/>
+
+		<!-- Roboto Mono -->
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono" />
+		<!-- SMUI Styles -->
+		<link rel="stylesheet" href="/smui.css" />
+
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
