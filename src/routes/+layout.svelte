@@ -16,10 +16,10 @@
 		status: 'error'
 	};
 
-	let open: boolean = false;
+	let open = false;
 	let variant: 'dismissible' | 'modal' = 'dismissible';
 	let mql: MediaQueryList;
-	let mqlListenerActive: boolean = false;
+	let mqlListenerActive = false;
 
 	/**
 	 * {@inheritdoc}
