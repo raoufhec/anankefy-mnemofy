@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install npm
+        uses: 
+        with:
+          node-version
+      
+      - name: Install
+        run: npm i
+      
+      - name: Lint
+        run: npm run lint
+  
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install npm
+        uses:
+      
+      - name: Set node
+        uses: actions/setup-node@v3
+        with:
+          node-version:
+
+      - name: Install
+        run: npm i
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Typecheck
+        run: npm run typecheck
+
+test: 
+  runs-on: ubuntu-latest
+
+  timeout-minutes: 30
+
+  strategy
