@@ -135,10 +135,10 @@ export class SpaceHandler extends Array<Array<Square>> {
 					const strength = Math.pow(data.strength * radius, 2) / (dx * dx + dy * dy);
 					if (strength > 0) {
 						let strengthObject = { sector, totalStrength: 0, userStrength: 0 };
-						if (sectorsStrength.has(sector.uuid)) {
-							strengthObject = sectorsStrength.get(sector.uuid)!;
+						if (sectorsStrength.has(sector.id)) {
+							strengthObject = sectorsStrength.get(sector.id)!;
 						} else {
-							sectorsStrength.set(sector.uuid, strengthObject);
+							sectorsStrength.set(sector.id, strengthObject);
 						}
 						strengthObject.userStrength += strength * system.control;
 						strengthObject.totalStrength += strength;
@@ -228,7 +228,7 @@ export class SpaceHandler extends Array<Array<Square>> {
 		value: number
 	) {
 		let currentState: { sector?: Task; state: number[] } = { sector: undefined, state: [0, 0, 0] };
-		const territoryId = node.territory!.uuid;
+		const territoryId = node.territory!.id;
 		if (states.has(territoryId)) {
 			currentState = states.get(territoryId)!;
 		} else {

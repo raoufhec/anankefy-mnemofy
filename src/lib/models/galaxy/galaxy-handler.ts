@@ -21,7 +21,7 @@ export interface ISpaceParticle extends ICoords {
 export const SIZE = 2000;
 
 export interface Link {
-	uuid: string;
+	id: string;
 	fromSystem: Task;
 	toSystem: Task;
 }
@@ -210,7 +210,7 @@ export class GalaxyHandler {
 				const position = ordredPoints[idx];
 				(system.data as ISystem).coords = new Vec2D(position.x, position.y);
 				idx++;
-				system.changes$.set(TaskChange.COORDS);
+				system.changes$.next(TaskChange.COORDS);
 			});
 		});
 	}
@@ -247,7 +247,7 @@ export class GalaxyHandler {
 					previousSystem = system;
 				} else {
 					const link = {
-						uuid: previousSystem.uuid + system.uuid,
+						id: previousSystem.id + system.id,
 						fromSystem: previousSystem,
 						toSystem: system
 					};

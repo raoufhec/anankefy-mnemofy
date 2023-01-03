@@ -12,7 +12,9 @@ const config = {
 		alias: {
 			'$models/*': 'src/lib/models/*',
 			'$components/*': 'src/lib/components/*',
-			'$stores/*': 'src/lib/stores/*'
+			'$modals/*': 'src/lib/modals/*',
+			'$stores/*': 'src/stores/*',
+			'$services/*': 'src/services/*'
 		}
 	}
 };

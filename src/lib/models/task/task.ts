@@ -1,6 +1,6 @@
-import { BackupActionType, BackupStep, type IBackupAction } from '$models/backup';
 import moment from 'moment';
-import { writable } from 'svelte/store';
+import { Subject } from 'rxjs';
+import { BackupActionType, BackupStep, type IBackupAction } from '$models/backup';
 import { SaveLocation, SaveStatus, TaskChange, TaskColor, TaskType } from './task-enums';
 import type {
 	IComment,
@@ -32,8 +32,8 @@ export class Task {
 	///////////////////////////////////////////
 	// ATTRIBUTES
 	///////////////////////////////////////////
-	public changes$ = writable<TaskChange>();
-	public uuid: string;
+	public changes$ = new Subject<TaskChange>();
+	public id: string;
 	public name: string;
 	public description: string;
 	public type?: TaskType;
@@ -126,7 +126,7 @@ export class Task {
 	// CONSTRCUTOR
 	//////////////////////////////////////////////////
 	constructor(data: ITaskData, parent?: Task) {
-		this.uuid = data.uuid;
+		this.id = data.id;
 		this.name = data.name;
 		this.description = data.description;
 		this.order = data.order;
@@ -445,7 +445,7 @@ export class Task {
 
 	public partialExport(): ITaskData {
 		const data: ITaskData = {
-			uuid: this.uuid,
+			id: this.id,
 			name: this.name,
 			description: this.description,
 			checked: this.checked,

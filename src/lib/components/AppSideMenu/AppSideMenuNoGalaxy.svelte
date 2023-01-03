@@ -1,6 +1,21 @@
 <script lang="ts">
 	import Button, { Label } from '@smui/button';
 	import logo from '$lib/assets/logo.svg';
+	import GalaxyEditModal from '$modals/GalaxyEditModal.svelte';
+	import { modal } from '$stores/modal.store';
+	import { multiverseService } from '$services/multiverse.service';
+
+	function createGalaxy() {
+		const galaxy = multiverseService.createGalaxy('New Galaxy');
+		modal.set({
+			component: GalaxyEditModal,
+			open: true,
+			props: {
+				edit: false,
+				galaxy
+			}
+		});
+	}
 </script>
 
 <div class="no-galaxy-container">
@@ -18,7 +33,7 @@
 				<Label>Read the Tutorial</Label>
 			</Button>
 			<div>or</div>
-			<Button>
+			<Button on:click={createGalaxy}>
 				<Label>Create a Galaxy</Label>
 			</Button>
 		</div>
@@ -36,7 +51,7 @@
 			text-align: center;
 			img {
 				height: 129px;
-				opacity: -1.9;
+				opacity: 0.9;
 			}
 			.slogan {
 				text-transform: uppercase;

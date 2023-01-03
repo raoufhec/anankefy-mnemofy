@@ -16,15 +16,61 @@
 
 @use '@material/elevation/mdc-elevation';
 
+:root {
+	--font-family: 'Titillium Web', sans-serif !important;
+}
 html,
 body {
+	color-scheme: dark;
 	background-color: #091424;
 	color: theme.$on-surface;
 	margin: 0px;
 	height: 100vh;
-	font-family: 'Titillium Web', sans-serif !important;
+	font-family: var(--font-family);
 }
 
+// scroll
+$scroll-bg: theme.$secondary;
+$scroll-color: color.scale(#3dc2ff, $lightness: -45%);
+/* Works on Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: $scroll-color $scroll-bg;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+	width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+	background: $scroll-bg;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: $scroll-color;
+	border-radius: 20px;
+}
+
+// Dialog
+.mdc-dialog {
+	z-index: 11 !important;
+	.mdc-dialog__scrim {
+		background-color: rgba(17, 34, 64, 0.5) !important;
+	}
+
+	.mdc-button.mdc-dialog__button {
+		flex: 1;
+	}
+}
+
+// input fields
+.mdc-text-field:not(.mdc-text-field--disabled) .mdc-text-field__input {
+	color: var(--mne-color-light) !important;
+	font-family: var(--font-family);
+}
+
+// Links
 a {
 	color: #3dc2ff;
 }
@@ -53,13 +99,13 @@ a:visited {
 	color: #3dc2ff !important;
 }
 .dark-color {
-	color: var(--mne-color-dark);
+	color: var(--mne-color-dark) !important;
 }
 .light-color {
-	color: var(--mne-color-light);
+	color: var(--mne-color-light) !important;
 }
 .shade-color {
-	color: var(--mne-color-shade);
+	color: var(--mne-color-shade) !important;
 }
 
 :root {

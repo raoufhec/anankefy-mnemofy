@@ -1,12 +1,16 @@
 <script lang="ts">
+	import { multiverseService } from '$services/multiverse.service';
 	import AppSideMenuNoGalaxy from './AppSideMenuNoGalaxy.svelte';
+	import AppSideMenuWithGalaxy from './AppSideMenuWithGalaxy.svelte';
 
-	let galaxy: string | undefined = undefined;
+	let galaxy = multiverseService.galaxy$;
 </script>
 
 <div class="menu-container">
-	{#if !galaxy}
+	{#if !$galaxy}
 		<AppSideMenuNoGalaxy />
+	{:else}
+		<AppSideMenuWithGalaxy />
 	{/if}
 </div>
 

@@ -1,2 +1,2 @@
-export * from './backup-interfaces';
+export * from './backup';
 export * from './backup-utils';

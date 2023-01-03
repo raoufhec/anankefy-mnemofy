@@ -7,4 +7,18 @@ export class MultiverseStore extends Store<Multiverse> {
 	}
 }
 
-export const multiverseStore = new MultiverseStore();
+export class MultiversesStore extends Store<Multiverse[]> {
+	constructor() {
+		super([]);
+	}
+
+	public add(multiverse: Multiverse): void {
+		this.update((multiverses) => {
+			if (!multiverses) {
+				return [multiverse];
+			} else {
+				return [...multiverses, multiverse];
+			}
+		});
+	}
+}

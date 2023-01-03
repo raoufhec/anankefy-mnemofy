@@ -1,6 +1,6 @@
 import type { Moment } from 'moment';
+import type { Subject } from 'rxjs';
 import type { BorderShape, ICoords, TerritoryShape, Vec2D } from '$models/space';
-import type { Writable } from 'svelte/store';
 import type { GalaxyTheme, GalaxyType, TaskColor, TaskType } from './task-enums';
 import type { GalaxyHandler } from '$models/galaxy/galaxy-handler';
 
@@ -16,12 +16,12 @@ export interface IComment {
 export interface IMoonData {
 	difficulty: number;
 }
-export type IMoon = IMoonData
+export type IMoon = IMoonData;
 
 export interface IPlanetData {
 	difficulty: number;
 }
-export type IPlanet = IPlanetData
+export type IPlanet = IPlanetData;
 
 export interface ISystemData {
 	coords?: ICoords;
@@ -29,7 +29,7 @@ export interface ISystemData {
 export interface ISystem extends ISystemData {
 	coords?: Vec2D;
 	strength: number;
-	notifyLinks$: Writable<Vec2D>;
+	notifyLinks$: Subject<Vec2D>;
 }
 
 export interface ISectorData {
@@ -67,7 +67,7 @@ export interface IGalaxy extends IGalaxyData {
 }
 
 export interface ITaskData {
-	uuid: string;
+	id: string;
 	name: string;
 	description: string;
 	checked: boolean;

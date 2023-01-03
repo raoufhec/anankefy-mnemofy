@@ -15,6 +15,9 @@ const config = {
 			branches: 80,
 			functions: 80,
 			statements: 80
+		},
+		deps: {
+			inline: ['moment']
 		}
 	}
 };
