@@ -26,7 +26,8 @@ export enum TaskColor {
  * Task changes
  */
 export enum TaskChange {
-	NAME = 0,
+	NAME_DESCRIPTION = 1,
+	LABELS,
 	ORDER,
 	CHECKED,
 	COLOR,
@@ -40,7 +41,13 @@ export enum TaskChange {
 	STRUCTURAL_WITH_INFLUENCE_CHANGE, // children moving around with influence change, no impact on systems coords
 	STRUCTURAL_WITH_GRAPH_CHANGE, // change affecting systems/sectors with need to recompute hierarchy
 	GRAPH_CHANGE, // change affecting systems/sectors, no need to recompute hierarchy
-	INFLUENCE_CHANGE // affecting territories and star control
+	INFLUENCE_CHANGE, // affecting territories and star control
+
+	SAVE_STATUS,
+	EDIT_ON,
+	EDIT_OFF,
+	CLOSED,
+	OPENED
 }
 
 /**
@@ -53,7 +60,7 @@ export enum GalaxyTheme {
 /**
  * Galaxy types
  */
-export enum GalaxyType {
+export enum GalaxyCategory {
 	PROJECT = 'Project',
 	NFT = 'NFT'
 }
@@ -62,7 +69,8 @@ export enum GalaxyType {
  * Galaxy save status
  */
 export enum SaveStatus {
-	NO_COPY = 0,
+	NEED_TO_SAVE = 0,
+	NO_COPY,
 	AHEAD,
 	SAME,
 	BEHIND

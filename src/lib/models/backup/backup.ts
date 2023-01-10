@@ -1,4 +1,4 @@
-import type { Task } from '$models/task';
+import type { Task } from '$models/task/task-interfaces';
 
 export enum BackupActionType {
 	NAME,
@@ -7,7 +7,6 @@ export enum BackupActionType {
 	ORDER,
 	PRIORITY,
 	DIFFICULTY,
-	TYPE,
 	CONTENT,
 
 	COLOR,

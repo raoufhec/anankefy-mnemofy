@@ -1,8 +1,8 @@
-import type { ITaskData } from '$models/task';
+import type { GalaxyData } from '$models/task';
 import Dexie, { type Table } from 'dexie';
 
 export class Storage extends Dexie {
-	galaxies!: Table<ITaskData>;
+	galaxies!: Table<GalaxyData>;
 
 	constructor() {
 		super('mnemofy');
@@ -11,12 +11,16 @@ export class Storage extends Dexie {
 		});
 	}
 
-	public async getLocalGalaxiesData(): Promise<ITaskData[]> {
+	public async getLocalGalaxiesData(): Promise<GalaxyData[]> {
 		if (!this.isOpen()) {
 			await this.open();
 		}
 		return this.galaxies.toArray();
 	}
+
+	public async save(data: GalaxyData) {
+		await this.galaxies.put(data);
+	}
 }
 
-export const StorageService = new Storage();
+export const storageService = new Storage();

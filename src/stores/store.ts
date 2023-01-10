@@ -10,7 +10,7 @@ import {
 /** Cleanup logic callback. */
 declare type Invalidator<T> = (value?: T) => void;
 
-export class Store<T> implements Writable<T | undefined> {
+export abstract class Store<T> implements Writable<T | undefined> {
 	private initialValue: T | undefined;
 	private store: Writable<T | undefined>;
 
@@ -18,8 +18,10 @@ export class Store<T> implements Writable<T | undefined> {
 		run: Subscriber<T | undefined>,
 		invalidate?: Invalidator<T | undefined> | undefined
 	) => Unsubscriber;
-	public set: (value: T | undefined) => void;
+	private storeSet: (value: T | undefined) => void;
 	public update: (updater: Updater<T | undefined>) => void;
+
+	abstract beforeSet(value: T | undefined): void;
 
 	/**
 	 * @constructor
@@ -30,8 +32,13 @@ export class Store<T> implements Writable<T | undefined> {
 		this.store = writable(value);
 		const { subscribe, set, update } = this.store;
 		this.subscribe = subscribe;
-		this.set = set;
+		this.storeSet = set;
 		this.update = update;
+	}
+
+	public set(value?: T) {
+		this.beforeSet(value);
+		this.storeSet(value);
 	}
 
 	/**

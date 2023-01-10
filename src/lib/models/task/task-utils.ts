@@ -1,371 +1,384 @@
-import { BackupActionType, type IBackupAction } from '$models/backup';
-import { EMBLEMS } from '$models/emblems';
-import { GalaxyHandler } from '$models/galaxy/galaxy-handler';
-import { Vec2D } from '$models/space';
-import { writable } from 'svelte/store';
-import type { Task } from './task';
-import { GalaxyTheme, GalaxyType, TaskColor, TaskType } from './task-enums';
-import type {
-	IGalaxy,
-	IGalaxyData,
-	IMoon,
-	IMoonData,
-	IPlanet,
-	IPlanetData,
-	ISector,
-	ISectorData,
-	ISystem,
-	ISystemData,
-	ITaskData
-} from './task-interfaces';
+import { addChildToGalaxy, type Galaxy, type GalaxyData } from './galaxy';
+import { createMoon, type Moon, type MoonData } from './moon';
+import { addChildToPlanet, createPlanet, type Planet, type PlanetData } from './planet';
+import { addChildToSector, createSector, type Sector, type SectorData } from './sector';
+import { addChildToSystem, createSystem, type System, type SystemData } from './system';
+import { TaskChange, TaskColor, TaskType } from './task-enums';
+import type { TaskData, Task } from './task-interfaces';
 
-export const injectGalaxyMethods = (item: Task, data?: IGalaxyData): void => {
-	item.type = TaskType.GALAXY;
-	const galaxyData: IGalaxy = {
-		color: TaskColor.VIOLET,
-		seed: Math.round(Math.random() * 10000),
-		nbrSectors: 0,
-		nbrSectorsCompleted: 0,
-		nbrSystems: 0,
-		nbrSystemsCompleted: 0,
-		nbrPlanets: 0,
-		nbrPlanetsCompleted: 0,
-		labelSet: [{ label: 'Hide checked', active: false }],
-		handler: new GalaxyHandler(),
-		theme: GalaxyTheme.BTL,
-		discoverable: false,
-		angleOffset: 0,
-		nbrArms: 3,
-		type: GalaxyType.PROJECT
-	};
-	if (data) {
-		Object.assign(galaxyData, data);
+export function setChecked(task: Task, value: boolean, propagate: boolean = true): void {
+	if (task.checked == value) return; // no need to change anything
+	task.checked = value;
+	if (propagate || value) {
+		(task.children as Task[]).forEach((child: Task) => {
+			setChecked(child, value, propagate);
+		});
 	}
-	item.data = galaxyData;
-	galaxyData.handler.initForGalaxy(item);
-
-	item.setChecked = function (value: boolean, propagate = true): void {
-		if (item.checked == value) return; // no need to change anything
-		item.checked = value;
-		if (propagate || value) {
-			item.children.forEach((child) => {
-				child.setChecked!(value, true);
-			});
-		}
-	};
-
-	item.getColor = function () {
-		return (item.data as IGalaxyData).color;
-	};
-
-	item.getDifficulty = function () {
-		let dif = 0;
-		if (item.children.length > 0) {
-			item.children.forEach((child) => {
-				dif += child.getDifficulty!();
-			});
-			dif = Math.round(dif / item.children.length);
-			return dif;
-		}
-		return 1;
-	};
-
-	item.getGalaxy = function () {
-		return item;
-	};
-
-	item.export = function (): ITaskData {
-		const output = item.partialExport();
-		const itemData = item.data as IGalaxyData;
-		output.data = {
-			color: itemData.color,
-			seed: itemData.seed,
-			theme: itemData.theme,
-			discoverable: itemData.discoverable,
-			angleOffset: itemData.angleOffset,
-			nbrArms: itemData.nbrArms,
-			type: itemData.type
-		};
-		output.date = item.date;
-		output.owner = item.owner;
-		return output;
-	};
-};
-
-export const injectSectorMethods = (item: Task, data?: ISectorData): void => {
-	item.type = TaskType.SECTOR;
-	const sectorData: ISector = {
-		color: TaskColor.VIOLET,
-		pattern: Math.floor(Math.random() * 10),
-		emblem: EMBLEMS[Math.floor(Math.random() * EMBLEMS.length)],
-		shapes: [],
-		userShapes: [],
-		borders: [],
-		points: new Map<Vec2D, Vec2D>(),
-		userPoints: new Map<Vec2D, Vec2D>(),
-		borderPoints: new Map<Vec2D, Vec2D>()
-	};
-
-	if (data) {
-		sectorData.color = data.color ? data.color : sectorData.color;
-		sectorData.pattern = data.pattern ? data.pattern : sectorData.pattern;
-		sectorData.emblem = data.emblem ? data.emblem : sectorData.emblem;
-	}
-	item.data = sectorData;
-
-	item.setChecked = function (value: boolean, propagate = true): void {
-		if (item.checked == value) return; // no need to change anything
-		item.checked = value;
-		if (propagate || value) {
-			item.children.forEach((child) => {
-				child.setChecked!(value, true);
-			});
-		}
-		if (value == false) {
-			item.parent!.setChecked!(false, false);
-		}
-		if (!item.removed && (item.newItemIndex === null || item.newItemIndex === undefined)) {
-			const increment = value ? +1 : -1;
-			const parentData = item.getGalaxy!().data as IGalaxy;
-			parentData.nbrSectorsCompleted += increment;
-		}
-	};
-
-	item.getColor = function () {
-		return (item.data as ISector).color;
-	};
-
-	item.getDifficulty = function () {
-		let dif = 0;
-		if (item.children.length > 0) {
-			item.children.forEach((child) => {
-				dif += child.getDifficulty!();
-			});
-			dif = Math.round(dif / item.children.length);
-			return dif;
-		}
-		return 1;
-	};
-
-	item.getGalaxy = function () {
-		return item.parent!;
-	};
-
-	item.export = function (): ITaskData {
-		const output = item.partialExport();
-		const itemData = item.data as ISector;
-		output.data = {
-			color: itemData.color,
-			pattern: itemData.pattern,
-			emblem: itemData.emblem
-		};
-		return output;
-	};
-};
-
-export const injectSystemMethods = (item: Task, data?: ISystemData): void => {
-	item.type = TaskType.SYSTEM;
-	const systemData: ISystem = {
-		strength: 0,
-		notifyLinks$: writable<Vec2D>()
-	};
-	if (data) {
-		systemData.coords = data.coords ? new Vec2D(data.coords.x, data.coords.y) : undefined;
-	}
-	item.data = systemData;
-
-	item.setChecked = function (value: boolean, propagate = true): void {
-		if (item.checked == value) return; // no need to change anything
-		item.checked = value;
-		if (propagate || value) {
-			item.children.forEach((child) => {
-				child.setChecked!(value, true);
-			});
-		}
-		if (value == false) {
-			item.parent!.setChecked!(false, false);
-		}
-		if (!item.removed && (item.newItemIndex === null || item.newItemIndex === undefined)) {
-			const increment = value ? +1 : -1;
-			const parentData = item.getGalaxy!().data as IGalaxy;
-			parentData.nbrSystemsCompleted += increment;
-		}
-	};
-
-	item.getColor = function () {
-		return item.parent!.getColor!();
-	};
-
-	item.getDifficulty = function () {
-		let dif = 0;
-		if (item.children.length > 0) {
-			item.children.forEach((child) => {
-				dif += child.getDifficulty!();
-			});
-			dif = Math.round(dif / item.children.length);
-			return dif;
-		}
-		return 1;
-	};
-
-	item.getGalaxy = function () {
-		return item.parent!.getGalaxy!();
-	};
-
-	item.export = function (): ITaskData {
-		const output = item.partialExport();
-		const itemData = item.data as ISystem;
-		output.data = {
-			coords: { x: itemData.coords!.x, y: itemData.coords!.y }
-		};
-		return output;
-	};
-};
-
-export const injectPlanetMethods = (item: Task, data?: IPlanetData): void => {
-	item.type = TaskType.PLANET;
-	const planetData: IPlanet = {
-		difficulty: 1
-	};
-	if (data) {
-		planetData.difficulty = data.difficulty;
-	}
-	item.data = planetData;
-
-	item.setChecked = function (value: boolean, propagate: boolean): void {
-		if (item.checked == value) return; // no need to change anything
-		item.checked = value;
-		if (propagate || value) {
-			item.children.forEach((child) => {
-				child.setChecked!(value, true);
-			});
-		}
-		if (value == false) {
-			item.parent!.setChecked!(false, false);
-		}
-
-		if (!item.removed && (item.newItemIndex === null || item.newItemIndex === undefined)) {
-			const increment = value ? +1 : -1;
-			const parentData = item.getGalaxy!().data as IGalaxy;
-			parentData.nbrPlanetsCompleted += increment;
-		}
-	};
-
-	item.getColor = function () {
-		return item.parent!.getColor!();
-	};
-
-	item.getDifficulty = function () {
-		return (item.data as IPlanetData).difficulty;
-	};
-
-	item.getGalaxy = function () {
-		return item.parent!.getGalaxy!();
-	};
-
-	item.export = function (): ITaskData {
-		const output = item.partialExport();
-		const itemData = item.data as IPlanetData;
-		output.data = {
-			difficulty: itemData.difficulty
-		};
-		return output;
-	};
-};
-
-export const injectMoonMethods = (item: Task, data?: IMoonData): void => {
-	item.type = TaskType.MOON;
-	const moonData: IMoon = { difficulty: 1 };
-	if (data) {
-		moonData.difficulty = data.difficulty ? data.difficulty : 1;
-	}
-
-	item.data = moonData;
-
-	item.setChecked = function (value: boolean, propagate?: boolean): void {
-		if (item.checked == value) return; // no need to change anything
-		item.checked = value;
-		if (value == false) {
-			item.parent!.setChecked!(false, false);
-		}
-	};
-
-	item.getColor = function () {
-		return item.parent!.getColor!();
-	};
-
-	item.getDifficulty = function () {
-		return 1;
-	};
-
-	item.getGalaxy = function () {
-		return item.parent!.getGalaxy!();
-	};
-
-	item.export = function (): ITaskData {
-		const output = item.partialExport();
-		const itemData = item.data as IMoonData;
-		output.data = {
-			difficulty: itemData.difficulty
-		};
-		return output;
-	};
-};
-
-export const updateGalaxyStats = (galaxy: Task, item: Task, adding: boolean) => {
-	if (item.removed) return;
-	const galaxyData = galaxy.data as IGalaxy;
-	const increment = adding ? 1 : -1;
-	switch (item.type) {
-		case TaskType.SECTOR:
-			galaxyData.nbrSectors += increment;
-			if (item.checked) {
-				galaxyData.nbrSectorsCompleted += increment;
+	if (task.type !== TaskType.GALAXY) {
+		if (task.parent) {
+			if (value === false) {
+				setChecked(task.parent, false, false);
 			}
-			item.children.forEach((system) => {
-				galaxyData.nbrSystems += increment;
-				if (system.checked) {
-					galaxyData.nbrSystemsCompleted += increment;
+			if (!task.removed && task.newItemIndex === undefined) {
+				const increment = value ? +1 : -1;
+				const galaxy = getGalaxy(task)!;
+				switch (task.type) {
+					case TaskType.MOON:
+						galaxy.nbrMoonsCompleted += increment;
+						break;
+					case TaskType.PLANET:
+						galaxy.nbrPlanetsCompleted += increment;
+						break;
+					case TaskType.SYSTEM:
+						galaxy.nbrSystemsCompleted += increment;
+						break;
+					case TaskType.SECTOR:
+						galaxy.nbrSectorsCompleted += increment;
+						break;
 				}
-				system.children.forEach((planet) => {
-					galaxyData.nbrPlanets += increment;
-					if (planet.checked) {
-						galaxyData.nbrPlanetsCompleted += increment;
-					}
-				});
-			});
-			break;
-		case TaskType.SYSTEM:
-			galaxyData.nbrSystems += increment;
-			if (item.checked) {
-				galaxyData.nbrSystemsCompleted += increment;
 			}
-			item.children.forEach((planet) => {
-				galaxyData.nbrPlanets += increment;
-				if (planet.checked) {
-					galaxyData.nbrPlanetsCompleted += increment;
-				}
-			});
-			break;
+		}
+	}
+	task.changes$!.set(TaskChange.CHECKED);
+}
+
+export function getColor(task: Task): TaskColor {
+	switch (task.type) {
+		case TaskType.MOON:
+			return (task as Moon).parent!.parent!.parent!.color;
 		case TaskType.PLANET:
-			galaxyData.nbrPlanets += increment;
-			if (item.checked) {
-				galaxyData.nbrPlanetsCompleted += increment;
-			}
-			break;
+			return (task as Planet).parent!.parent!.color;
+		case TaskType.SYSTEM:
+			return (task as System).parent!.color;
+		case TaskType.SECTOR:
+			return (task as Sector).color;
+		default: // Galaxy
+			return (task as Galaxy).color;
 	}
-};
+}
 
-export const backupAllSystemsBeforeCoordsChange = (galaxy: Task): IBackupAction[] => {
-	const step: IBackupAction[] = [];
-	galaxy.children.forEach((sector) => {
-		sector.children.forEach((system) => {
-			step.push({
-				item: system,
-				value: (system.data as ISystem).coords!.clone(),
-				type: BackupActionType.COORDINATES
-			});
+export function getDifficulty(task: Task): number {
+	let dif = 0;
+	if (task.children.length > 0) {
+		(task.children as Task[]).forEach((child) => {
+			dif += getDifficulty(child);
+		});
+		dif = Math.round(dif / task.children.length);
+		return dif;
+	}
+	return 1;
+}
+
+export function getGalaxy(task: Task): Galaxy | undefined {
+	switch (task.type) {
+		case TaskType.MOON:
+			return (task as Moon).parent?.parent?.parent?.parent;
+		case TaskType.PLANET:
+			return (task as Planet).parent?.parent?.parent;
+		case TaskType.SYSTEM:
+			return (task as System).parent?.parent;
+		case TaskType.SECTOR:
+			return (task as Sector).parent;
+		default: // Galaxy
+			return task as Galaxy;
+	}
+}
+
+export function getNbrChildren(task: Task, openOnly: boolean = false): number {
+	if (openOnly && task.closed) return 0;
+	let nbr = task.children.length;
+	(task.children as Task[]).forEach((child) => {
+		nbr += getNbrChildren(child, openOnly);
+	});
+	return nbr;
+}
+
+export function exportCommonData(task: Task): TaskData {
+	const commonData: TaskData = {
+		id: task.id,
+		type: task.type,
+		name: task.name,
+		description: task.description,
+		checked: task.checked,
+		priority: task.priority,
+		order: task.order,
+		closed: task.closed,
+		encrypted: task.encrypted,
+		children: [],
+		labels: [],
+		comments: [],
+		content: task.content
+	};
+	task.labels.forEach((label) => {
+		commonData.labels.push(label);
+	});
+	(task.children as Task[]).forEach((child) => {
+		const childData = exportData(child);
+		commonData.children.push(childData);
+	});
+	task.comments.forEach((comment) => {
+		commonData.comments.push({
+			content: comment.content,
+			time: comment.time.toISOString()
 		});
 	});
-	return step;
-};
+	return commonData;
+}
+
+export function exportData(task: Task): TaskData {
+	const commonData = exportCommonData(task);
+	switch (task.type) {
+		case TaskType.MOON:
+			const moonData = commonData as MoonData;
+			moonData.difficulty = task.difficulty;
+			return moonData;
+		case TaskType.PLANET:
+			const planetData = commonData as PlanetData;
+			planetData.difficulty = task.difficulty;
+			return planetData;
+		case TaskType.SYSTEM:
+			const systemData = commonData as SystemData;
+			systemData.coords = { x: task.coords!.x, y: task.coords!.y };
+			return systemData;
+		case TaskType.SECTOR:
+			const sectorData = commonData as SectorData;
+			sectorData.color = task.color;
+			sectorData.pattern = task.pattern;
+			sectorData.emblem = task.emblem;
+			return sectorData;
+		default: // Galaxy
+			const galaxyData = commonData as GalaxyData;
+			galaxyData.color = task.color;
+			galaxyData.theme = task.theme;
+			galaxyData.discoverable = task.discoverable;
+			galaxyData.category = task.category;
+			galaxyData.date = task.date.toISOString();
+			return galaxyData;
+	}
+}
+
+export function setClosed(task: Task, value: boolean): void {
+	task.closed = value;
+	if (value === true) {
+		(task.children as Task[]).forEach((child) => {
+			setClosed(child, value);
+		});
+		task.changes$.set(TaskChange.CLOSED);
+	} else {
+		task.changes$.set(TaskChange.OPENED);
+	}
+}
+
+export function addChild(parent: Task, child: Task): void {
+	switch (parent.type) {
+		case TaskType.MOON:
+			throw new Error('Cannot add children to Moons!');
+		case TaskType.PLANET:
+			addChildToPlanet(parent, child as Moon);
+			break;
+		case TaskType.SYSTEM:
+			addChildToSystem(parent, child as Planet);
+			break;
+		case TaskType.SECTOR:
+			addChildToSector(parent, child as System);
+			break;
+		default: // Galaxy
+			addChildToGalaxy(parent, child as Sector);
+			break;
+	}
+}
+
+export function removeChild(parent: Task, child: Task): void {}
+
+export function getFlattenedChildren(task: Task): Task[] {
+	let children: Task[] = [];
+	(task.children as Task[]).forEach((child) => {
+		children.push(child);
+		children = children.concat(getFlattenedChildren(child));
+	});
+	return children;
+}
+
+export function typeToText(type: TaskType): string {
+	switch (type) {
+		case TaskType.GALAXY:
+			return 'galaxy';
+		case TaskType.SECTOR:
+			return 'sector';
+		case TaskType.SYSTEM:
+			return 'system';
+		case TaskType.PLANET:
+			return 'planet';
+		default:
+			return 'moon';
+	}
+}
+
+export function createTask(data: TaskData, type: TaskType, parent?: Task): Task {
+	switch (type) {
+		case TaskType.SECTOR:
+			return createSector(data as SectorData, parent as Galaxy | undefined);
+		case TaskType.SYSTEM:
+			return createSystem(data as SystemData, parent as Sector | undefined);
+		case TaskType.PLANET:
+			return createPlanet(data as PlanetData, parent as System | undefined);
+		case TaskType.MOON:
+			return createMoon(data as MoonData, parent as Planet | undefined);
+		default:
+			throw new Error('Cannot create task of type: ' + type);
+	}
+}
+
+export function isDisplayed(task: Task): boolean {
+	return !task.parent!.closed;
+}
+
+// export function morphTo<T>(task: Task, type: TaskType, newParent: Task): T {
+// 	let rollback: IBackupAction[] = [
+// 		{
+// 			item: task,
+// 			value: { type: task.type, parent: task.parent },
+// 			type: BackupActionType.TYPE
+// 		},
+// 		{
+// 			item: task,
+// 			value: task.checked,
+// 			type: BackupActionType.CHECKED
+// 		}
+// 	];
+// 	let rollforward: IBackupAction[] = [
+// 		{
+// 			item: task,
+// 			value: { type, parent: newParent },
+// 			type: BackupActionType.TYPE
+// 		}
+// 	];
+//     // the task to be morphed needs to keep track to the current parent.
+//     // a backup of the removal from the old parent needs to have been added before we get here
+//     // Remove -> type -> add
+//     const morphedTaskData = {
+//         id: task.id,
+//         name: task.name,
+//         description: task.description,
+//         checked: task.checked,
+//         priority: task.priority,
+//         order: task.order,
+//         closed: task.closed,
+//         encrypted: task.encrypted,
+//         children: [],
+//         labels: [...task.labels],
+//         comments: [...task.comments],
+//         content: task.content,
+//         changes$: new Subject<TaskChange>(),
+//     }
+//     let morphedTask: Task;
+// 	switch (type) {
+// 		case TaskType.MOON:
+//             const moon: Moon = {
+//                 ...morphedTaskData,
+//                 type: TaskType.MOON,
+//                 difficulty: (task.type === TaskType.PLANET) ? task.difficulty : 1,
+
+//                 changes$: new Subject<TaskChange>(),
+//                 parent: newParent as Planet
+//             }
+//             morphedTask = moon;
+//             break;
+// 		case TaskType.PLANET:
+//             const planet: Planet = {
+//                 ...morphedTaskData,
+//                 type: TaskType.PLANET,
+//                 difficulty: (task.type === TaskType.MOON) ? task.difficulty : 1,
+
+//                 changes$: new Subject<TaskChange>(),
+//                 parent: newParent as System
+//             }
+//             morphedTask = planet;
+//             break;
+// 		case TaskType.SYSTEM:
+//             const system: System = {
+//                 ...morphedTaskData,
+//                 type: TaskType.SYSTEM,
+//                 notifyLinks$: new Subject<Vec2D>(),
+//                 strength: 1,
+
+//                 changes$: new Subject<TaskChange>(),
+//                 parent: newParent as Sector
+//             }
+//             morphedTask = system;
+//             break;
+// 		case TaskType.SECTOR:
+//             const sector: Sector = {
+//                 ...morphedTaskData,
+//                 type: TaskType.SECTOR,
+//                 color: TaskColor.VIOLET,
+//                 pattern: Math.floor(Math.random() * 10),
+//                 emblem: EMBLEMS[Math.floor(Math.random() * EMBLEMS.length)],
+//                 shapes: [],
+//                 userShapes: [],
+//                 borders: [],
+//                 points: new Map<Vec2D, Vec2D>(),
+//                 userPoints: new Map<Vec2D, Vec2D>(),
+//                 borderPoints: new Map<Vec2D, Vec2D>(),
+
+//                 changes$: new Subject<TaskChange>(),
+//                 parent: newParent as Galaxy
+//             }
+//             morphedTask = sector;
+//             break;
+// 		default: // Galaxy
+//             throw new Error('Morphing to a galaxy is not allowed')
+// 	}
+
+//     if(task.children.length > 0) {
+//         const children = [...task.children] as Task[];
+//         if(type >= TaskType.MOON) {
+//             // Max level is 4 (Moon) so children need to change parent
+//             let order = task.order + 1;
+//             children.forEach((child) => {
+//                 const morphedChild = child;
+//                 // 1- prepare to remove child
+//                 rollback.push({
+//                     item: newParent,
+//                     value: morphedChild,
+//                     type: BackupActionType.REMOVE_CHILD
+//                 });
+//                 rollforward.push({
+//                     item: task,
+//                     value: child,
+//                     type: BackupActionType.REMOVE_CHILD
+//                 });
+//                 const childNbrChildren = getNbrChildren(child);
+//                 // remove child
+
+//                 // 2- prepare to change order
+
+//                 // 3- prepare to add child
+
+//             })
+//         } else { // no need to change parent
+//             let order = 0;
+//             children.forEach((child) => {
+//                 const nbrChildChildren = getNbrChildren(child);
+//                 // 1- prepare to remove child
+//                 rollback.push({
+//                     item: task,
+//                     value: child,
+//                     type: BackupActionType.REMOVE_CHILD
+//                 });
+//                 rollforward.push({
+//                     item: task,
+//                     value: child,
+//                     type: BackupActionType.REMOVE_CHILD
+//                 });
+
+//                 // remove child
+
+//                 // 2- prepare to change order
+
+//                 // 3- prepare to add child
+//             })
+
+//         }
+//     }
+// }

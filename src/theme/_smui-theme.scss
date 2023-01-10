@@ -2,36 +2,101 @@
 
 @use '@material/theme/color-palette';
 
+$mne-primary: #3dc2ff;
+$mne-primary-rgb: 61, 194, 255;
+$mne-secondary: #0bdbfb;
+$mne-secondary-rgb: 11, 219, 251;
+$mne-success: #2dd36f;
+$mne-success-rgb: 45, 211, 111;
+$mne-warning: #ffc409;
+$mne-warning-rgb: 255, 196, 9;
+$mne-error: #eb445a;
+$mne-error-rgb: 235, 68, 90;
+$mne-background-light: #112240;
+$mne-background-dark: #091424;
+$mne-text-dark: #424242;
+$mne-text-light: #f5f6f9;
+$mne-text-shade: #9d9fa6;
+
 // Svelte Colors! (Dark Theme)
 @use '@material/theme/index' as theme with (
-	$primary: #0bdbfb,
-	$secondary: #112240,
-	$surface: #112240,
-	$background: #091424,
-	$error: color-palette.$red-700,
-	$on-surface: #d7d8da,
-	$on-primary: #d7d8da,
-	$on-secondary: #d7d8da
+	$primary: $mne-primary,
+	$secondary: $mne-secondary,
+	$surface: $mne-background-light,
+	$background: $mne-background-dark,
+	$error: $mne-error,
+	$on-surface: $mne-text-light,
+	$on-primary: $mne-text-light,
+	$on-secondary: $mne-text-light
 );
 
 @use '@material/elevation/mdc-elevation';
 
 :root {
 	--font-family: 'Titillium Web', sans-serif !important;
+	--mne-color-warning: #{$mne-warning};
+	--mne-color-warning-rgb: #{$mne-warning-rgb};
+	--mne-color-error: #{$mne-error};
+	--mne-color-error-rgb: #{$mne-error-rgb};
+	--mne-color-success: #{$mne-success};
+	--mne-color-success-rgb: #{$mne-success-rgb};
+
+	--mne-color-dark: #{$mne-text-dark};
+	--mne-color-light: #{$mne-text-light};
+	--mne-color-shade: #{$mne-text-shade};
+
+	--mne-color-primary: #{$mne-primary};
+	--mne-color-primary-rgb: #{$mne-primary-rgb};
+	--mne-color-secondary: #{$mne-secondary};
+	--mne-color-secondary-rgb: #{$mne-secondary-rgb};
+
+	--background-color-dark: #{$mne-background-dark};
+	--background-color-light: #{$mne-background-light};
 }
+
+* {
+	font-family: var(--font-family) !important;
+}
+
 html,
 body {
 	color-scheme: dark;
-	background-color: #091424;
-	color: theme.$on-surface;
+	background-color: var(--background-color-dark);
+	color: var(--mne-color-light);
 	margin: 0px;
 	height: 100vh;
 	font-family: var(--font-family);
 }
 
-// scroll
-$scroll-bg: theme.$secondary;
-$scroll-color: color.scale(#3dc2ff, $lightness: -45%);
+//////////////////////////////////////////////////
+// MATERIAL ICONS
+//////////////////////////////////////////////////
+i,
+.material-icons {
+	user-select: none;
+	font-family: 'Material Icons' !important;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 24px;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	--webkit-font-feature-settings: 'liga';
+	--webkit-font-smoothing: antialiased;
+}
+*[aria-disabled='true'] > .material-icons {
+	opacity: 0.38;
+}
+
+//////////////////////////////////////////////////
+// SCROLL
+//////////////////////////////////////////////////
+$scroll-bg: $mne-background-light;
+$scroll-color: color.scale($mne-secondary, $lightness: -45%);
 /* Works on Firefox */
 * {
 	scrollbar-width: thin;
@@ -52,7 +117,9 @@ $scroll-color: color.scale(#3dc2ff, $lightness: -45%);
 	border-radius: 20px;
 }
 
-// Dialog
+//////////////////////////////////////////////////
+// DIALOG
+//////////////////////////////////////////////////
 .mdc-dialog {
 	z-index: 11 !important;
 	.mdc-dialog__scrim {
@@ -64,23 +131,34 @@ $scroll-color: color.scale(#3dc2ff, $lightness: -45%);
 	}
 }
 
-// input fields
+//////////////////////////////////////////////////
+// INPUTS
+//////////////////////////////////////////////////
 .mdc-text-field:not(.mdc-text-field--disabled) .mdc-text-field__input {
 	color: var(--mne-color-light) !important;
 	font-family: var(--font-family);
 }
 
-// Links
+//////////////////////////////////////////////////
+// LINKS
+//////////////////////////////////////////////////
 a {
 	color: #3dc2ff;
 }
 a:visited {
 	color: color.scale(#3dc2ff, $lightness: -35%);
 }
+
+//////////////////////////////////////////////////
+// TOP BAR
+//////////////////////////////////////////////////
 .mdc-top-app-bar {
 	background-color: theme.$surface;
 }
 
+//////////////////////////////////////////////////
+// DRAWER
+//////////////////////////////////////////////////
 .mdc-drawer.mdc-drawer--open:not(.mdc-drawer--closing) + .mdc-drawer-app-content.app-content {
 	margin-left: 370px;
 }
@@ -88,15 +166,44 @@ a:visited {
 	width: 370px !important;
 }
 
-.icon-button .mdc-button .mdc-button__icon {
-	margin: 0px;
+//////////////////////////////////////////////////
+// BUTTONS
+//////////////////////////////////////////////////
+.icon-button {
+	i {
+		margin: 0px !important;
+		font-size: 24px !important;
+		width: 24px !important;
+		height: 24px !important;
+	}
+	&.small {
+		width: 40px !important;
+		min-width: 40px !important;
+		i {
+			font-size: 20px !important;
+			width: 20px !important;
+			height: 20px !important;
+		}
+	}
 }
 
+//////////////////////////////////////////////////
+// TEXT
+//////////////////////////////////////////////////
 .primary-color {
-	color: theme.$primary !important;
+	color: var(--mne-color-primary) !important;
 }
 .secondary-color {
-	color: #3dc2ff !important;
+	color: var(--mne-color-secondary) !important;
+}
+.success-color {
+	color: var(--mne-color-success) !important;
+}
+.warning-color {
+	color: var(--mne-color-warning) !important;
+}
+.error-color {
+	color: var(--mne-color-error) !important;
 }
 .dark-color {
 	color: var(--mne-color-dark) !important;
@@ -108,14 +215,27 @@ a:visited {
 	color: var(--mne-color-shade) !important;
 }
 
-:root {
-	--mne-color-warning: #ffc409;
-	--mne-color-error: #eb445a;
-	--mne-color-success: #2dd36f;
+//////////////////////////////////////////////////
+// LIST
+//////////////////////////////////////////////////
+li[role='separator'] {
+	border-bottom-color: rgba(var(--mne-color-primary-rgb), 0.5) !important;
+}
 
-	--mne-color-dark: #424242;
-	--mne-color-light: #f5f6f9;
-	--mne-color-shade: #9d9fa6;
-
-	--mne-color-primary: #0bdbfb;
+//////////////////////////////////////////////////
+// INPUTS
+//////////////////////////////////////////////////
+.mne-input,
+.mne-textarea {
+	width: 100%;
+	background: var(--background);
+	color: var(--color);
+	max-width: 100%;
+	border: 0px;
+	outline: none;
+	box-sizing: border-box;
+	appearance: none;
+	padding: 10px 8px;
+	font-size: var(--font-size, 16px);
+	resize: none;
 }

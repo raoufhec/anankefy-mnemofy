@@ -3,10 +3,10 @@
 	import logo from '$lib/assets/logo.svg';
 	import GalaxyEditModal from '$modals/GalaxyEditModal.svelte';
 	import { modal } from '$stores/modal.store';
-	import { multiverseService } from '$services/multiverse.service';
+	import { createNewGalaxy } from '$models/task';
 
 	function createGalaxy() {
-		const galaxy = multiverseService.createGalaxy('New Galaxy');
+		const galaxy = createNewGalaxy('New Galaxy');
 		modal.set({
 			component: GalaxyEditModal,
 			open: true,

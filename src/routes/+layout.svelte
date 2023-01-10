@@ -9,6 +9,7 @@
 	import AppSideMenu from '$components/AppSideMenu/AppSideMenu.svelte';
 	import GenericModal from '$modals/GenericModal.svelte';
 	import { multiverseService } from '$services/multiverse.service';
+	import AppHeaderButtons from '$components/AppHeaderButtons/AppHeaderButtons.svelte';
 
 	let version = {
 		value: 'alpha-0.0.1',
@@ -21,30 +22,25 @@
 		status: 'error'
 	};
 
-	let tabs = [
+	let tabs: { icon: string; href: string; label: string }[] = [
 		{
 			icon: 'folder_open',
-			href: './',
+			href: '/projects',
 			label: 'Projects'
 		},
 		{
 			icon: 'grid_3x3',
-			href: './',
+			href: '/map',
 			label: 'Map'
 		},
 		{
 			icon: 'format_list_bulleted',
-			href: './',
+			href: '/overview',
 			label: 'Overview'
 		}
 	];
-	let active = tabs[0];
-	let galaxy = multiverseService.galaxy$;
-	$: if ($galaxy !== undefined) {
-		console.log('updating tabs');
-		tabs.forEach((tab) => (tab.href = `/${$galaxy!.id}/${tab.label.toLowerCase()}`));
-		tabs = [...tabs];
-	}
+	let active: { icon: string; href: string; label: string };
+
 	$: if ($navigating) {
 		const route = $navigating.to?.route.id;
 		if (route) {
@@ -63,10 +59,28 @@
 	let mql: MediaQueryList;
 	let mqlListenerActive = false;
 
+	const { galaxy } = multiverseService;
+
+	$: if ($galaxy !== undefined) {
+		tabs.forEach((tab) => (tab.href = `/${tab.label.toLowerCase()}/${$galaxy!.id}`));
+		tabs = [...tabs];
+	} else {
+		tabs.forEach((tab) => (tab.href = `/${tab.label.toLowerCase()}`));
+		tabs = [...tabs];
+	}
+
 	/**
 	 * When component is loaded listen to media query
 	 */
 	onMount(() => {
+		if (window.location.pathname.includes('overview')) {
+			active = tabs[2];
+		} else if (window.location.pathname.includes('map')) {
+			active = tabs[1];
+		} else {
+			active = tabs[0];
+		}
+		multiverseService.getLocalGalaxies();
 		addMediaQueryListener();
 		return () => {
 			removeMediaQueryListener();
@@ -119,25 +133,21 @@
 <GenericModal />
 
 <!-- Application Top Header (toolbar)-->
-<TopAppBar
-	variant="fixed"
-	prominent={false}
-	dense={true}
-	color="secondary"
-	class="top-app-bar mdc-elevation--z2"
->
+<TopAppBar variant="fixed" prominent={false} dense={true} class="top-app-bar mdc-elevation--z2">
 	<Row>
 		<Section>
-			<Button color="primary" on:click={toggleMenu}>
+			<Button class="icon-button" on:click={toggleMenu}>
 				<Icon class="material-icons primary-color icon-button">menu</Icon>
 			</Button>
-			<Title>Mnemo<span class="secondary-color">fy</span></Title>
+			<Title class="top-app-bar-title">Mnemo<span>fy</span></Title>
 			<a id="version" class={version.status} href={version.link}>{version.value}</a>
 			<a id="smart-contract" class={smartContract.status} href={smartContract.link}
 				>smart-contract: {smartContract.value}</a
 			>
 		</Section>
-		<Section align="end" />
+		<Section align="end">
+			<AppHeaderButtons />
+		</Section>
 	</Row>
 </TopAppBar>
 
@@ -160,13 +170,7 @@
 		<slot />
 	</div>
 	<TabBar {tabs} let:tab bind:active>
-		<Tab
-			{tab}
-			href={tab.href}
-			disabled={true}
-			data-sveltekit-preload-code="off"
-			data-sveltekit-preload-data="off"
-		>
+		<Tab {tab} href={tab.href} data-sveltekit-preload-code="off" data-sveltekit-preload-data="off">
 			<Icon class="material-icons">{tab.icon}</Icon>
 			<Label>{tab.label}</Label>
 		</Tab>
@@ -176,6 +180,14 @@
 <style lang="scss">
 	:global(.top-app-bar) {
 		z-index: 10;
+		background-color: var(--background-color-light) !important;
+		:global(.top-app-bar-title) {
+			font-weight: 600;
+			color: var(--mne-color-light);
+			span {
+				color: var(--mne-color-primary);
+			}
+		}
 	}
 
 	:global(.app-content) {
@@ -186,8 +198,11 @@
 			margin-top: 48px;
 			flex: 1;
 			overflow-y: scroll;
+			overflow-x: hidden;
 			overscroll-behavior-y: contain;
 			will-change: scroll-position;
+			display: flex;
+			flex-direction: column;
 		}
 	}
 

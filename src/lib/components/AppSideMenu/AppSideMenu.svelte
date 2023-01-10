@@ -3,14 +3,14 @@
 	import AppSideMenuNoGalaxy from './AppSideMenuNoGalaxy.svelte';
 	import AppSideMenuWithGalaxy from './AppSideMenuWithGalaxy.svelte';
 
-	let galaxy = multiverseService.galaxy$;
+	const { galaxy } = multiverseService;
 </script>
 
 <div class="menu-container">
-	{#if !$galaxy}
-		<AppSideMenuNoGalaxy />
-	{:else}
+	{#if $galaxy}
 		<AppSideMenuWithGalaxy />
+	{:else}
+		<AppSideMenuNoGalaxy />
 	{/if}
 </div>
 

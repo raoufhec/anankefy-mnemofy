@@ -1,14 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import GalaxyEditModal from './GalaxyEditModal.svelte';
-import { multiverseService } from '$services/multiverse.service';
-import type { Task } from '$models/task';
+import { createNewGalaxy, type Task } from '$models/task';
 
 describe('Galaxy Edit Modal', () => {
 	let galaxy: Task;
 
 	beforeEach(() => {
-		galaxy = multiverseService.createGalaxy('New Galaxy');
+		galaxy = createNewGalaxy('New Galaxy');
 	});
 
 	describe('Basic Modal functionnalities', () => {

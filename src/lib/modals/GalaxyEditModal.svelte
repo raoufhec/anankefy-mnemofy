@@ -6,18 +6,18 @@
 	import Select, { Option } from '@smui/select';
 	import Switch from '@smui/switch';
 	import FormField from '@smui/form-field';
-	import type { Task } from '$models/task/task';
 	import ModalHeader from './ModalHeader.svelte';
-	import ColorPicker from '$components/AppSideMenu/TaskAttributes/ColorPicker.svelte';
-	import { GalaxyTheme, SaveLocation, TaskColor, type IGalaxy } from '$models/task';
-	import { onMount } from 'svelte';
+	import ColorPicker from '$components/TaskAttributes/ColorPicker.svelte';
+	import { GalaxyTheme, SaveLocation, TaskColor, type Galaxy } from '$models/task';
 	import { Multiverse } from '$models/multiverse';
 	import { multiverseService } from '$services/multiverse.service';
+	import Input from '$components/inputs/Input.svelte';
+	import Textarea from '$components/inputs/Textarea.svelte';
 
 	export let data: any;
 	export let open: boolean = false;
 	let edit: boolean = false;
-	let galaxy: Task;
+	let galaxy: Galaxy;
 
 	let color: TaskColor;
 	let name: string = '';
@@ -36,28 +36,25 @@
 	}
 
 	function initValues() {
-		console.log('init values');
 		edit = data.edit;
 		title = edit ? 'Edit Galaxy' : 'Create Galaxy';
 		galaxy = data.galaxy;
 		name = galaxy.name;
 		description = galaxy.description;
-		const galaxyData = galaxy.data as IGalaxy;
-		color = galaxyData.color;
-		theme = galaxyData.theme;
-		discoverable = galaxyData.discoverable;
+		color = galaxy.color;
+		theme = galaxy.theme;
+		discoverable = galaxy.discoverable;
 	}
 
 	function confirm() {
-		const data = galaxy.data as IGalaxy;
 		if (!edit) {
 			galaxy.name = name;
 			galaxy.description = description;
-			data.color = color;
-			data.theme = theme;
-			data.discoverable = discoverable;
+			galaxy.color = color;
+			galaxy.theme = theme;
+			galaxy.discoverable = discoverable;
 			const multiverse = new Multiverse(galaxy.id);
-			multiverse.setLocalGalaxy(galaxy);
+			multiverse.local = galaxy;
 			multiverseService.setMultiverseAndActivateGalaxy(multiverse, SaveLocation.LOCAL);
 			closeModal();
 		} else {
@@ -77,30 +74,14 @@
 			>
 				<ModalHeader {title} on:close={closeModal} />
 				<Content id="edit-galaxy-content">
-					<div class="modal-content">
+					<div class="modal-content" style:--background-color={color + '44'}>
 						<div class="uuid">{galaxy.id}</div>
 						<ColorPicker bind:color />
 						<div class="field">
-							<Textfield
-								bind:value={name}
-								style="width: 100%"
-								variant="outlined"
-								label="Name"
-								placeholder="name"
-							/>
+							<Input bind:value={name} placeholder="Name" />
 						</div>
-						<div class="field">
-							<Textfield
-								textarea
-								bind:value={description}
-								input$maxlength={255}
-								style="width: 100%"
-								variant="outlined"
-								label="Description"
-								placeholder="Description"
-							>
-								<CharacterCounter slot="internalCounter" />
-							</Textfield>
+						<div class="field description">
+							<Textarea bind:value={description} placeholder="Description" />
 						</div>
 						<div class="field">
 							<Select variant="outlined" bind:value={theme} label="Theme" style="width: 100%">
@@ -150,7 +131,11 @@
 	.field {
 		margin: 8px 0px;
 		width: 100%;
-		background-color: var(--background-color);
+		--background: var(--background-color);
+		--color: var(--mne-color-light);
+		&.description {
+			--color: var(--mne-color-shade);
+		}
 		&.no-bg-color {
 			background-color: transparent;
 		}
